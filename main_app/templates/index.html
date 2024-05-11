@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TODO APP</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+  <style>
+    body {
+      font-family: "Open Sans", sans-serif;
+      line-height: 1.6;
+    }
+    .add-todo-input,
+    .edit-todo-input {
+      outline: none;
+    }
+    .add-todo-input:focus,
+    .edit-todo-input:focus {
+      border: none !important;
+      box-shadow: none !important;
+    }
+    .view-opt-label,
+    .date-label {
+      font-size: 0.8rem;
+    }
+    .edit-todo-input {
+      font-size: 1.7rem !important;
+    }
+    .todo-actions {
+      visibility: hidden !important;
+    }
+    .todo-item:hover .todo-actions {
+      visibility: visible !important;
+    }
+    .todo-item.editing .todo-actions .edit-icon {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container m-5 p-2 rounded mx-auto bg-light shadow">
+    <!-- App title section -->
+    <div class="row m-1 p-4">
+      <div class="col">
+        <div class="p-1 h1 text-primary text-center mx-auto display-inline-block">
+          <i class="fa fa-check bg-primary text-white rounded p-2"></i>
+          <u>TODO APP</u>
+
+        </div>
+        <div id="messageBox"> 
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'success' %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{message}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+          {% elif message.tags == 'error' %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              {{message}}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endif %}
+          {% endfor %}
+          {% endif %}
+         
+
+          </div>
+     
+      </div>
+    </div>
+    <!-- Create todo section -->
+    <div class="row m-1 p-3">
+      <div class="col col-11 mx-auto">
+          <form action="" method="post">
+            {% csrf_token %}
+        <div class="row bg-white rounded shadow-sm p-2 add-todo-wrapper align-items-center justify-content-center">
+
+                <div class="col">
+                    <input class="form-control form-control-lg border-0 add-todo-input bg-transparent rounded" type="text" placeholder="Add new .." name="title">
+                </div>
+                <div class="col-auto m-0 px-2 d-flex align-items-center">
+                    <label class="text-secondary my-2 p-0 px-1 view-opt-label due-date-label d-none">Due date not set</label>
+                    <i class="fa fa-calendar my-2 px-1 text-primary btn due-date-button" data-toggle="tooltip" data-placement="bottom" title="Set a Due date"></i>
+                    <i class="fa fa-calendar-times-o my-2 px-1 text-danger btn clear-due-date-button d-none" data-toggle="tooltip" data-placement="bottom" title="Clear Due date"></i>
+                    <input type="hidden" name="date" id="date">
+                </div>
+                <div class="col-auto px-0 mx-0 mr-2">
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+    <div class="p-2 mx-4 border-black-25 border-bottom"></div>
+    <!-- View options section -->
+
+    <!-- Todo list section -->
+    <div class="row mx-1 px-5 pb-3 w-80">
+      <div class="col mx-auto">
+        {% for todo in todo%}
+        <div class="row mt-2">
+            <div class="col">
+                <input type="checkbox" class="form-check-input checked" value="{{todo.id}}"
+                {% if todo.status == 1 %}
+                checked
+                {% endif %}
+                >
+
+            </div>
+            <div class="col-md-7">
+                {{todo.title}}
+            </div>
+            <div class="col-md-2">
+                Due: {{todo.due}}
+            </div>
+            <div class="col-md-2">
+                <div class="row">
+                    <div class="col">
+                        <button class="btn btn-primary btn-sm edit" value="{{todo.id}}"><i class="fa-solid fa-pencil"></i></button>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-danger btn-sm delete" value="{{todo.id}}"><i class="fa-solid fa-trash"></i></button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="success" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Delete</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Do you really want to delete?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <a class="btn btn-danger" id="deleteBtn">Delete</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal show fade right" id="test" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Todo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="" method="post" id="edit_form">
+                {% csrf_token %}
+                <div class="col form-group">
+                  <label>Title</label>
+                    <input type="text" name="title" class="form-control" id="title">
+                </div>
+                <div class="col form-group">
+                    <label>Due Date</label>
+                    <input type="date" name="date" class="form-control" id="due">
+                  </div>
+                  
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">update</button>
+                </div>
+              </form>
+        </div>
+    </div>
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+  <script>
+    $(document).ready(function(){
+        // $('#test').modal('show')
+        $('[data-toggle="tooltip"]').tooltip();
+
+        function formatDate(date) {
+          return (
+            date.getDate() +
+            "/" +
+            (date.getMonth() + 1) +
+            "/" +
+            date.getFullYear()
+          );
+        }
+
+        var currentDate = formatDate(new Date());
+
+        $(".due-date-button").datepicker({
+          format: "dd/mm/yyyy",
+          autoclose: true,
+          todayHighlight: true,
+          startDate: currentDate,
+          orientation: "bottom right",
+        });
+
+        $(".due-date-button").on("click", function (event) {
+          $(".due-date-button")
+            .datepicker("show")
+            .on("changeDate", function (dateChangeEvent) {
+              $(".due-date-button").datepicker("hide");
+              $(".due-date-label").text(formatDate(dateChangeEvent.date));
+              $("#date").val(formatDate(dateChangeEvent.date));
+            });
+        });
+        $(".delete").click(function(){
+            $('#success').modal('show')
+            $('#deleteBtn').attr('href','delete/'+$(this).val());
+        });
+        $('.checked').change(function(){
+            $.ajax({
+                type:"get",
+                url:"/status/"+$(this).val(),
+                success:function(response){
+                   
+                    if(response.status == 200){
+                      let message = ` <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        ${response.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>`
+                      $('#messageBox').html(message)
+                    }else{
+                        let message = ` <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                          ${response.message}
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>`
+                        $('#messageBox').html(message)
+                        
+                        
+                    }
+                    $('#messageBox').addClass('show')
+                }
+            })
+        });
+        $('.edit').click(function(){
+
+            $.ajax({
+                type:"get",
+                url:'/'+$(this).val(),
+                success:function(response){
+                    $('#title').val(response.data[0].fields.title)
+                    $('#due').val(response.data[0].fields.due)
+                    $('#edit_form').attr('action','/'+response.data[0].pk)
+                    $('#test').modal('show')
+                }
+            })
+        });
+      });
+  </script>
+</body>
+</html>
